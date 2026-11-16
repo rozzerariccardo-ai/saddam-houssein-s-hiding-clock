@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f5f1e9">
+<meta name="description" content="Saddam Hussein’s Hiding Spot — un orologio analogico con una lancetta personalizzata.">
+<title>Saddam Hussein’s Hiding Spot</title>
+<style>
+:root{color-scheme:light;--ink:#292823;--muted:#817b70;--paper:#f5f1e9;--line:#ded7ca;--accent:#a45f51}
+*{box-sizing:border-box}
+body{margin:0;min-height:100svh;display:grid;place-items:center;background:var(--paper);color:var(--ink);font-family:Georgia,"Times New Roman",serif}
+main{width:min(92vw,520px);padding:34px 18px 28px;text-align:center}
+h1{font-size:clamp(19px,4vw,26px);font-weight:500;letter-spacing:.045em;margin:0 0 28px}
+.clock{position:relative;width:min(82vw,390px);aspect-ratio:1;margin:auto;border-radius:50%;background:radial-gradient(circle,#fffefa 0,#fbf8f1 72%,#f1ece2 100%);border:1px solid #d8d0c3;box-shadow:0 14px 40px #342c2015,inset 0 0 0 8px #fff,inset 0 0 0 9px #e8e1d5}
+.numbers{position:absolute;inset:0}
+.number{position:absolute;left:50%;top:9px;transform-origin:50% calc(var(--radius));font-size:clamp(15px,4vw,20px);width:28px;margin-left:-14px;text-align:center;color:#37342e}
+.tick{position:absolute;left:50%;top:10px;width:1px;height:7px;background:#c9c1b5;transform-origin:50% calc(var(--radius));}
+.tick.major{height:12px;width:2px;background:#9d9588}
+.hand{position:absolute;left:50%;bottom:50%;transform-origin:50% 100%;border-radius:10px;pointer-events:none}
+.hour-image{position:absolute;left:50%;bottom:50%;width:17%;height:43%;object-fit:fill;object-position:center bottom;transform-origin:50% 100%;filter:drop-shadow(0 2px 2px #0002);pointer-events:none}
+.minute{height:32%;width:3px;background:#39362f}
+.second{height:39%;width:1.5px;background:var(--accent)}
+.pivot{position:absolute;z-index:5;left:50%;top:50%;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);background:#302e29;border:2px solid #fff}
+.digital{font:500 22px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em;margin-top:25px;font-variant-numeric:tabular-nums}
+.caption{font:11px Arial,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+footer{font:12px Arial,sans-serif;color:var(--muted);margin-top:30px}
+@media(prefers-reduced-motion:no-preference){.second{transition:transform .08s linear}}
+</style>
+</head>
+<body>
+<main>
+<h1>Saddam Hussein’s Hiding Spot</h1>
+<div class="clock" aria-label="Orologio analogico">
+ <div class="numbers" id="numbers"></div>
+ <img class="hour-image" id="hour" src="lancetta.png" alt="Lancetta delle ore personalizzata">
+ <div class="hand minute" id="minute"></div>
+ <div class="hand second" id="second"></div>
+ <div class="pivot"></div>
+</div>
+<div class="digital" id="digital" aria-live="off">--:--:--</div>
+<div class="caption">Ora locale del dispositivo</div>
+<footer>Un orologio, nient’altro.</footer>
+</main>
+<script>
+const numbers=document.querySelector('#numbers');
+for(let i=1;i<=12;i++){
+ const a=i*30, n=document.createElement('div');
+ n.className='number'; n.style.setProperty('--radius','calc(50% - 0px)');
+ n.style.transform=`rotate(${a}deg) translateY(calc(min(41vw, 195px) * -0.0))`;
+ n.style.top='10px';
+ n.textContent=i;
+ // Position numerals around the dial using polar coordinates.
+ const r=43, rad=(i%12)*Math.PI/6;
+ n.style.left=`${50+ r*Math.sin(rad)}%`;
+ n.style.top=`${50- r*Math.cos(rad)}%`;
+ n.style.transform='translate(-50%,-50%)';
+ numbers.appendChild(n);
+}
+for(let i=0;i<60;i++){
+ const t=document.createElement('i'); t.className='tick'+(i%5===0?' major':'');
+ t.style.transform=`translateX(-50%) rotate(${i*6}deg)`;
+ t.style.transformOrigin='50% calc(min(41vw, 195px))';
+ numbers.appendChild(t);
+}
+const hour=document.querySelector('#hour'),minute=document.querySelector('#minute'),second=document.querySelector('#second'),digital=document.querySelector('#digital');
+function update(){
+ const d=new Date(),s=d.getSeconds()+d.getMilliseconds()/1000,m=d.getMinutes()+s/60,h=(d.getHours()%12)+m/60;
+ hour.style.transform=`translateX(-50%) rotate(${h*30}deg)`;
+ minute.style.transform=`translateX(-50%) rotate(${m*6}deg)`;
+ second.style.transform=`translateX(-50%) rotate(${s*6}deg)`;
+ digital.textContent=[d.getHours(),d.getMinutes(),d.getSeconds()].map(v=>String(v).padStart(2,'0')).join(':');
+ requestAnimationFrame(()=>setTimeout(update,100));
+}
+update();
+</script>
+</body></html>
